@@ -16,7 +16,9 @@ export default class UsageRepository {
             {new: true}
         ).lean<Usage>().exec();
 
-        console.log("decrease count: ", result);
+        console.log("=== decrease count ===");
+        console.log(result);
+        console.log("=== decrease count ===");
         return result
     }
 
@@ -27,7 +29,9 @@ export default class UsageRepository {
             {new: true}
         ).lean<Usage>().exec();
 
-        console.log("increase count: ", result);
+        console.log("=== increase count ===");
+        console.log(result);
+        console.log("=== increase count ===");
         return result
     }
 }

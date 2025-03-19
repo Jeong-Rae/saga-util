@@ -1,7 +1,7 @@
 import UserRepository from "./user.repository";
 import UsageRepository from "./usage.repository";
+import {withRollback} from "../util/withRollback";
 import {LocalTransaction} from "../util/LocalTransactionDecorator";
-import {withRollback} from "../util/LocalTransactionContext";
 
 export default class LlmCallService {
     constructor(
@@ -10,7 +10,7 @@ export default class LlmCallService {
     ) {
     }
 
-    @LocalTransaction({ catchUnhandledError: true })
+    @LocalTransaction()
     async process(userId: string): Promise<any> {
         const usage = await withRollback(this.usageRepository.decreaseCount(userId))
             .rollback(() => this.usageRepository.increaseCount(userId));
@@ -23,9 +23,23 @@ export default class LlmCallService {
                 .rollback(() => this.userRepository.updatePricingType(userId, 'freetrial'));
         }
 
-        const response = await withRollback(this.callLlm());
+        const response = await this.callLlm();
         return response;
 
+    }
+
+    async process2(userId: string): Promise<any> {
+        const usage = await this.usageRepository.decreaseCount(userId);
+        if (!usage) {
+            throw new Error('Not found usage');
+        }
+
+        if (usage.remainingCount <= 0) {
+            await this.userRepository.updatePricingType(userId, 'free')
+        }
+
+        const response = await this.callLlm();
+        return response;
 
     }
 

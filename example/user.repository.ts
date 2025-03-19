@@ -16,6 +16,10 @@ export default class UserRepository {
             {new: true}
         ).lean<User>().exec();
 
+        console.log("=== update pricingType ===");
+        console.log(result);
+        console.log("=== update pricingType ===");
+
         return result;
     }
 }
