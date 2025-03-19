@@ -3,11 +3,13 @@ import {localTransactionContextStorage} from "./LocalTransactionContextStorage";
 
 export type LocalTransactionOptions = {
     catchUnhandledError?: boolean;
+    propagation?: 'new' | 'inherit';
     verbose?: boolean;
 }
 
 export function LocalTransaction(options: LocalTransactionOptions = {
     catchUnhandledError: true,
+    propagation: 'inherit',
     verbose: false
 }) {
     return function (
@@ -19,7 +21,7 @@ export function LocalTransaction(options: LocalTransactionOptions = {
 
         descriptor.value = async function (...args: any[]) {
             const transactionContext = localTransactionContextStorage.getStore();
-            if (transactionContext) {
+            if (transactionContext && options.propagation === 'inherit') {
                 return await executeWithContext(transactionContext, originalMethod, this, args, options);
             }
 

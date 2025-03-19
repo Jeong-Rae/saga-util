@@ -1,4 +1,5 @@
 import {RollbackFailedError} from './RollbackFailedError';
+import {randomUUID} from 'node:crypto';
 
 export type AnyRollbackFn = () => any;
 
@@ -7,31 +8,58 @@ export type RollbackablePromise<T> = Promise<T> & {
 };
 
 export class LocalTransactionContext {
-    // 롤백 함수는 모두 async로 래핑해서 실행할 예정이므로 Promise<void> 목록을 관리
+    private readonly contextId: string;
     private rollbackStack: Array<() => Promise<void>> = [];
+    private isRollbackExecuted = false;
+    private isRollbackSuccess = false;
 
-    /**
-     * 동기/비동기 상관없이 AnyRollbackFn을 등록하면,
-     * 내부에서 async 함수로 래핑하여 rollbackStack에 추가.
-     */
+    constructor() {
+        this.contextId = randomUUID();
+    }
+
     addRollback(fn: AnyRollbackFn): void {
+        if (this.isRollbackExecuted) {
+            throw new Error('롤백이 이미 실행되었습니다');
+        }
+
         const wrappedFn = async () => {
             await Promise.resolve().then(fn);
         };
         this.rollbackStack.push(wrappedFn);
     }
 
-    /**
-     * rollbackAll: 스택을 역순으로 실행하며, 하나라도 실패 시 RollbackFailedError 발생
-     */
     async rollbackAll(): Promise<void> {
-        await this.rollbackStack.reverse().reduce(async (prev, rollbackFn) => {
-            await prev;
-            try {
+        if (this.isRollbackExecuted) {
+            return;
+        }
+
+        try {
+            await this.rollbackStack.reverse().reduce(async (prev, rollbackFn) => {
+                await prev;
                 await rollbackFn();
-            } catch (error) {
-                throw new RollbackFailedError('rollback failed');
-            }
-        }, Promise.resolve());
+            }, Promise.resolve());
+            this.isRollbackSuccess = true;
+        } catch (error) {
+            this.isRollbackSuccess = false;
+            throw new RollbackFailedError('rollback failed');
+        } finally {
+            this.isRollbackExecuted = true;
+        }
+    }
+
+    getContextId(): string {
+        return this.contextId;
+    }
+
+    isExecuted(): boolean {
+        return this.isRollbackExecuted;
+    }
+
+    isSuccess(): boolean {
+        return this.isRollbackSuccess;
+    }
+
+    hasRollbacks(): boolean {
+        return this.rollbackStack.length > 0;
     }
 }
