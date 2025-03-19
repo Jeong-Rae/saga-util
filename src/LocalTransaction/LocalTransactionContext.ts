@@ -1,3 +1,5 @@
+import {RollbackFailedError} from "./RollbackFailedError";
+
 export type RollbackFn<T = void> = () => Promise<T>;
 
 export type RollbackablePromise<T> = Promise<T> & {
@@ -18,7 +20,7 @@ export class LocalTransactionContext {
             try {
                 await fn();
             } catch (error) {
-                console.error('Rollback failed', error);
+                throw new RollbackFailedError("rollback failed")
             }
         }, Promise.resolve());
     }
