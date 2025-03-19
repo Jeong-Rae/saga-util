@@ -6,8 +6,8 @@ export type LocalTransactionOptions = {
     verbose?: boolean;
 }
 
-export function LocalTransaction(options?: LocalTransactionOptions = {
-    catchUnhandledError: false,
+export function LocalTransaction(options: LocalTransactionOptions = {
+    catchUnhandledError: true,
     verbose: false
 }) {
     return function (
