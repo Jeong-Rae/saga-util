@@ -1,24 +1,25 @@
+import {AnyRollbackFn, RollbackablePromise} from "./LocalTransactionContext";
 import {localTransactionContextStorage} from "./LocalTransactionContextStorage";
-import {RollbackablePromise, RollbackFn} from "./LocalTransactionContext";
 import {NoActiveTransactionContextError} from "./NoActiveTransactionContextError";
 
-/**
- * withRollback
- * @param action (Promise<T>) - 비동기 action
- * @returns RollbackablePromise<T>
- */
-export function withRollback<T>(action: Promise<T>): RollbackablePromise<T> {
-    const wrapper: RollbackablePromise<T> = Object.assign(action, {
-        rollback<U>(rollbackFn: RollbackFn<U>): RollbackablePromise<T> {
+export function withRollback<T>(action: T | Promise<T>): RollbackablePromise<T> {
+    const promise = Promise.resolve(action);
+    const wrapper: RollbackablePromise<T> = Object.assign(promise, {
+        rollback(rollbackFn: AnyRollbackFn): RollbackablePromise<T> {
             const context = localTransactionContextStorage.getStore();
             if (!context) {
-                throw new NoActiveTransactionContextError('No active transaction context');
+                throw new NoActiveTransactionContextError("no active transaction context");
             }
-            context.addRollback(rollbackFn as RollbackFn);
+
+            const wrappedRollback = async () => {
+                await Promise.resolve().then(rollbackFn);
+            };
+            context.addRollback(wrappedRollback);
+
             return wrapper;
         }
     });
-
     return wrapper;
 }
+
 

@@ -1,34 +1,36 @@
-import {RollbackFailedError} from "./RollbackFailedError";
+import {RollbackFailedError} from './RollbackFailedError';
 
-export type SyncRollbackFn<T = void> = () => T;
-export type AsyncRollbackFn<T = void> = () => Promise<T>;
-export type RollbackFn<T = void> = () => Promise<T>;
+export type AnyRollbackFn = () => any;
 
 export type RollbackablePromise<T> = Promise<T> & {
-    rollback: <U>(rollbackFn: SyncRollbackFn<U> | AsyncRollbackFn<U>) => RollbackablePromise<T>;
+    rollback(rollbackFn: AnyRollbackFn): RollbackablePromise<T>;
 };
 
 export class LocalTransactionContext {
-    static current: LocalTransactionContext | null = null;
-    private rollbackStack: RollbackFn[] = [];
+    // 롤백 함수는 모두 async로 래핑해서 실행할 예정이므로 Promise<void> 목록을 관리
+    private rollbackStack: Array<() => Promise<void>> = [];
 
-    addRollback<T>(fn: SyncRollbackFn<T>): void;
-    addRollback<T>(fn: AsyncRollbackFn<T>): void;
-    addRollback<T>(fn: SyncRollbackFn<T> | AsyncRollbackFn<T>): void {
+    /**
+     * 동기/비동기 상관없이 AnyRollbackFn을 등록하면,
+     * 내부에서 async 함수로 래핑하여 rollbackStack에 추가.
+     */
+    addRollback(fn: AnyRollbackFn): void {
         const wrappedFn = async () => {
             await Promise.resolve().then(fn);
-            return;
         };
         this.rollbackStack.push(wrappedFn);
     }
 
+    /**
+     * rollbackAll: 스택을 역순으로 실행하며, 하나라도 실패 시 RollbackFailedError 발생
+     */
     async rollbackAll(): Promise<void> {
-        await this.rollbackStack.reverse().reduce(async (prevPromise, fn) => {
-            await prevPromise;
+        await this.rollbackStack.reverse().reduce(async (prev, rollbackFn) => {
+            await prev;
             try {
-                await fn();
+                await rollbackFn();
             } catch (error) {
-                throw new RollbackFailedError("rollback failed");
+                throw new RollbackFailedError('rollback failed');
             }
         }, Promise.resolve());
     }
