@@ -1,7 +1,7 @@
 import UserRepository from "./user.repository";
 import UsageRepository from "./usage.repository";
-import {withRollback} from "../util/withRollback";
-import {LocalTransaction} from "../util/LocalTransactionDecorator";
+import {withRollback} from "../src/LocalTransaction/withRollback";
+import {LocalTransaction} from "../src/LocalTransaction/LocalTransactionDecorator";
 
 export default class LlmCallService {
     constructor(
