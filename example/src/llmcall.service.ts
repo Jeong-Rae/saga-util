@@ -1,5 +1,4 @@
-import { withRollback, LocalTransaction } from "@lyght/saga";
-import { LocalTransaction } from "@lyght/saga";
+import { LocalTransaction, withRollback } from "@lyght/saga";
 import type UsageRepository from "./usage.repository";
 import type UserRepository from "./user.repository";
 
@@ -10,6 +9,7 @@ export default class LlmCallService {
 	) {}
 
 	@LocalTransaction()
+	// biome-ignore lint/suspicious/noExplicitAny: example code
 	async process(userId: string): Promise<any> {
 		const usage = await withRollback(
 			this.usageRepository.decreaseCount(userId),
@@ -30,6 +30,8 @@ export default class LlmCallService {
 		return response;
 	}
 
+	@LocalTransaction()
+	// biome-ignore lint/suspicious/noExplicitAny: example code
 	async process2(userId: string): Promise<any> {
 		const usage = await this.usageRepository.decreaseCount(userId);
 		if (!usage) {
