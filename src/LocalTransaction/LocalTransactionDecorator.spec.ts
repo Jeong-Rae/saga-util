@@ -1,9 +1,10 @@
 import type { LocalTransactionContext } from "./LocalTransactionContext";
 import { localTransactionContextStorage } from "./LocalTransactionContextStorage";
 import { LocalTransaction } from "./LocalTransactionDecorator";
+import { NoActiveTransactionContextError } from "./NoActiveTransactionContextError";
 import { withRollback } from "./withRollback";
 
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 class TestService {
 	public rollbackCalls: string[] = [];
@@ -62,6 +63,34 @@ class TestService {
 		);
 		throw new Error("Inner error");
 	}
+
+	@LocalTransaction({ catchUnhandledError: true, verbose: true })
+	async errorMethodWithCatch(): Promise<void> {
+		await withRollback(Promise.resolve("fn1")).rollback(() =>
+			this.rollbackCalls.push("rollbackFn1"),
+		);
+		await withRollback(Promise.resolve("fn2")).rollback(() =>
+			this.rollbackCalls.push("rollbackFn2"),
+		);
+		throw new Error("Test error");
+	}
+
+	@LocalTransaction({ catchUnhandledError: false })
+	async errorMethodWithoutCatch(): Promise<void> {
+		await withRollback(Promise.resolve("fn1")).rollback(() =>
+			this.rollbackCalls.push("rollbackFn1"),
+		);
+		await withRollback(Promise.resolve("fn2")).rollback(() =>
+			this.rollbackCalls.push("rollbackFn2"),
+		);
+		throw new Error("Test error");
+	}
+
+	async withoutContextMethod(): Promise<void> {
+		await withRollback(Promise.resolve("fn1")).rollback(() =>
+			this.rollbackCalls.push("rollbackFn1"),
+		);
+	}
 }
 
 describe("LocalTransactionDecorator", () => {
@@ -93,7 +122,7 @@ describe("LocalTransactionDecorator", () => {
 		]);
 	});
 
-	describe("propagation", () => {
+	describe("option: propagation", () => {
 		it("propagation: new", async () => {
 			await expect(service.nestedMethodNewContext()).rejects.toThrow(
 				"Inner error",
@@ -107,6 +136,47 @@ describe("LocalTransactionDecorator", () => {
 			);
 
 			expect(service.rollbackCalls).toEqual(["outerRollbackFn"]);
+		});
+	});
+
+	describe("option: catchUnhandledError", () => {
+		it("catchUnhandledError: true", async () => {
+			await expect(service.errorMethodWithCatch()).rejects.toThrow(
+				"Test error",
+			);
+
+			expect(service.rollbackCalls).toEqual(["rollbackFn2", "rollbackFn1"]);
+		});
+
+		describe("with verbose", () => {
+			it("verbose: true", async () => {
+				vi.spyOn(console, "error");
+
+				await expect(service.errorMethodWithCatch()).rejects.toThrow(
+					"Test error",
+				);
+
+				expect(console.error).toHaveBeenCalledWith(
+					"unhandledCatchError",
+					expect.any(Error),
+				);
+			});
+		});
+
+		it("catchUnhandledError: false", async () => {
+			await expect(service.errorMethodWithoutCatch()).rejects.toThrow(
+				"Test error",
+			);
+
+			expect(service.rollbackCalls).toEqual([]);
+		});
+	});
+
+	describe("without context", () => {
+		it("without context", async () => {
+			await expect(service.withoutContextMethod()).rejects.toThrow(
+				NoActiveTransactionContextError,
+			);
 		});
 	});
 });

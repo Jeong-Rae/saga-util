@@ -1,14 +1,17 @@
 import { randomUUID } from "node:crypto";
-import type { AnyFn } from "../types";
+import { toPromise } from "@/utils/promise";
+import type { AsyncFn, SyncFn } from "../types";
 import { RollbackFailedError } from "./RollbackFailedError";
 
+export type RollbackFn = SyncFn | AsyncFn;
+
 export type RollbackablePromise<T> = Promise<T> & {
-	rollback(rollbackFn: AnyFn): RollbackablePromise<T>;
+	rollback(fn: RollbackFn): RollbackablePromise<T>;
 };
 
 export class LocalTransactionContext {
 	private readonly contextId: string;
-	private rollbackStack: Array<AnyFn> = [];
+	private rollbackStack: Array<RollbackFn> = [];
 	private isRollbackExecuted = false;
 	private isRollbackSuccess = false;
 
@@ -16,15 +19,11 @@ export class LocalTransactionContext {
 		this.contextId = randomUUID();
 	}
 
-	addRollback(fn: AnyFn): void {
+	addRollback(fn: RollbackFn): void {
 		if (this.isRollbackExecuted) {
 			throw new RollbackFailedError("rollback already executed");
 		}
-
-		const wrappedFn = async () => {
-			await Promise.resolve().then(fn);
-		};
-		this.rollbackStack.push(wrappedFn);
+		this.rollbackStack.push(toPromise(fn));
 	}
 
 	async rollbackAll(): Promise<void> {
