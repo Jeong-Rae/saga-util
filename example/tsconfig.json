@@ -7,12 +7,15 @@
 		"isolatedModules": true,
 		"target": "ESNext",
 		"module": "ESNext",
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"preserveWatchOutput": true,
 		"skipLibCheck": true,
 		"strict": true,
 		"resolveJsonModule": true,
 		"lib": ["ESNext"],
+		"types": ["node"],
+		"outDir": "dist",
+		"rootDir": "src",
 		"experimentalDecorators": true
 	},
 	"exclude": ["node_modules"]
