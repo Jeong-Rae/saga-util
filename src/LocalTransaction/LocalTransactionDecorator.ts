@@ -48,7 +48,7 @@ export function LocalTransaction<T extends AnyFn>(
 			return localTransactionContextStorage.run(newContext, async () =>
 				executeWithContext(newContext, originalMethod, this, args, options),
 			);
-		} as unknown as T; // T를 만족하도록 단언
+		} as unknown as T;
 	};
 }
 
