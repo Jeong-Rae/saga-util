@@ -22,12 +22,6 @@ export function LocalTransaction<T extends AnyFn>(
 	): void => {
 		const originalMethod = descriptor.value as T;
 
-		/*
-		 *  새로운 구현은
-		 *    - this 타입을 보존(ThisParameterType<T>)
-		 *    - 파라미터 타입을 보존(Parameters<T>)
-		 *    - 반환 타입을 Promise<ReturnType<T>> 로 통일
-		 */
 		descriptor.value = async function (
 			this: ThisParameterType<T>,
 			...args: Parameters<T>
