@@ -1,8 +1,10 @@
 {
 	"compilerOptions": {
-		"target": "ESNext", //  ECMAScript 버전
-		"module": "commonjs", // 모듈 시스템 지정
+		"target": "ES2020", //  ECMAScript 버전
+		"module": "ESNext", // 모듈 시스템 지정
+		"moduleResolution": "node", // 모듈 해석 방식
 		"esModuleInterop": true, // CommonJS 모듈을 ES 모듈처럼 가져올 수 있도록 허용
+		"allowSyntheticDefaultImports": true, // 기본 내보내기가 없는 모듈에서 기본 가져오기 허용
 		"forceConsistentCasingInFileNames": true, // 파일 이름의 대소문자를 일관되게 사용하도록 강제
 		"strict": true, // 모든 엄격한 타입 검사
 		"skipLibCheck": true, // 선언 파일(*.d.ts)의 타입 검사 건너뛰기
