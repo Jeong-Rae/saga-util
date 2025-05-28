@@ -1,0 +1,20 @@
+{
+	"name": "@lyght/saga-example",
+	"version": "1.0.0",
+	"description": "Example usage of @lyght/saga",
+	"private": true,
+	"main": "index.js",
+	"scripts": {
+		"start": "ts-node index.ts",
+		"dev": "ts-node index.ts"
+	},
+	"dependencies": {
+		"@lyght/saga": "workspace:*",
+		"mongoose": "^8.12.1"
+	},
+	"devDependencies": {
+		"ts-node": "^10.9.2",
+		"typescript": "^5.8.2"
+	},
+	"type": "module"
+}

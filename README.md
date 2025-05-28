@@ -9,6 +9,41 @@
     2. **데코레이터(@LocalTransaction)** 를 이용하면 **메서드 범위**에서 트랜잭션 컨텍스트를 자동 생성 및 에러 발생 시 rollbackAll 실행을 보장합니다.
     3. **withRollback** 함수를 통해 **동기/비동기 작업**을 프로미스로 래핑하고, **역순 실행**되는 보상 함수를 간편하게 등록할 수 있습니다.
 
+## 프로젝트 구조
+
+이 프로젝트는 **monorepo** 구조로 구성되어 있습니다:
+
+```
+saga/
+├── src/                          # 라이브러리 소스 코드
+│   ├── index.ts                  # 메인 export 파일
+│   └── LocalTransaction/         # LocalTransaction 유틸리티들
+├── example/                      # 예제 애플리케이션 (별도 패키지)
+│   ├── package.json             # example 패키지 설정
+│   ├── index.ts                 # 예제 실행 파일
+│   └── *.ts                     # 예제 서비스 파일들
+├── package.json                 # 루트 패키지 (workspaces 설정)
+└── dist/                        # 컴파일된 라이브러리 출력
+```
+
+### 설치 및 실행
+
+1. **의존성 설치**:
+   ```bash
+   pnpm install
+   ```
+
+2. **라이브러리 빌드**:
+   ```bash
+   pnpm build
+   ```
+
+3. **예제 실행**:
+   ```bash
+   cd example
+   pnpm start
+   ```
+
 ### 특징
 
 - **AsyncLocalStorage** 사용
@@ -16,7 +51,7 @@
     - 데코레이터가 없을 때도 수동으로 `localTransactionContextStorage.run(...)`으로 컨텍스트 범위를 지정할 수 있음.
 - **동기/비동기 함수** 모두 처리 가능
     - `withRollback(action)`에서 동기/비동기 `action`과, `.rollback(fn)`에서 동기/비동기 `fn`을 모두 지원
-- **단순화된 “부분 롤백”**
+- **단순화된 "부분 롤백"**
     - 단계별 보상 로직(rollbackFn)을 등록하고, 에러 발생 시 진행 상황까지의 동작을 **등록 순서의 역순**으로 실행
 
 ---
@@ -117,8 +152,8 @@ async function sagaMethodPlainJS() {
     - 따라서 `await`으로 풀어야 결과를 사용할 수 있습니다.
 
 3. **rollback** 함수는 에러가 발생했을 때 내부에서 자동 실행되므로, 롤백 함수 호출에 대해 직접 `await`할 필요는 없습니다.
-    - `.rollback(fn)`은 “보상 로직 등록”만 수행.
-    - 실제 실행은 “에러 발생 시점” → “데코레이터나 수동 rollbackAll()에서 역순 호출”
+    - `.rollback(fn)`은 "보상 로직 등록"만 수행.
+    - 실제 실행은 "에러 발생 시점" → "데코레이터나 수동 rollbackAll()에서 역순 호출"
 
 # 구조
 
