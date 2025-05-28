@@ -1,4 +1,5 @@
-import { AsyncLocalStorage } from 'async_hooks';
-import {LocalTransactionContext} from "./LocalTransactionContext";
+import { AsyncLocalStorage } from "node:async_hooks";
+import type { LocalTransactionContext } from "./LocalTransactionContext";
 
-export const localTransactionContextStorage = new AsyncLocalStorage<LocalTransactionContext>();
+export const localTransactionContextStorage =
+	new AsyncLocalStorage<LocalTransactionContext>();

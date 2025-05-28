@@ -1,9 +1,6 @@
+import type { AnyFn } from "../types";
 import { LocalTransactionContext } from "./LocalTransactionContext";
 import { localTransactionContextStorage } from "./LocalTransactionContextStorage";
-
-export type AnyFn<Args extends unknown[] = unknown[], Return = unknown> = (
-	...args: Args
-) => Return;
 
 export type LocalTransactionOptions = {
 	catchUnhandledError?: boolean;
