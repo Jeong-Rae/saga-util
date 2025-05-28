@@ -2,23 +2,25 @@ import { LocalTransactionContext } from "./LocalTransactionContext";
 import { localTransactionContextStorage } from "./LocalTransactionContextStorage";
 import { withRollback } from "./withRollback";
 
+import { afterEach, beforeEach, describe, expect, it, vitest } from "vitest";
+
 describe("withRollback", () => {
 	let mockContext: LocalTransactionContext;
 
 	beforeEach(() => {
 		mockContext = new LocalTransactionContext();
-		jest
+		vitest
 			.spyOn(localTransactionContextStorage, "getStore")
 			.mockReturnValue(mockContext);
 	});
 
 	afterEach(() => {
-		jest.restoreAllMocks();
+		vitest.restoreAllMocks();
 	});
 
 	describe("fn이 정상적으로 실행", () => {
 		it("동기 fn 실행", async () => {
-			const syncFn = jest.fn(() => 1);
+			const syncFn = vitest.fn(() => 1);
 
 			const result = await withRollback(Promise.resolve(syncFn()));
 
@@ -29,7 +31,7 @@ describe("withRollback", () => {
 		it("비동기 fn 실행", async () => {
 			const delay = (ms: number) =>
 				new Promise((resolve) => setTimeout(resolve, ms));
-			const asyncFn = jest.fn(async () => {
+			const asyncFn = vitest.fn(async () => {
 				await delay(10);
 				return 2;
 			});
@@ -43,11 +45,9 @@ describe("withRollback", () => {
 
 	describe("rollbackFn이 정상적으로 등록됨", () => {
 		it("동기 rollbackFn 등록", async () => {
-			const syncRollbackFn = jest.fn(() => 1);
+			const syncRollbackFn = vitest.fn(() => 1);
 
-			const usage = await withRollback(Promise.resolve("fn")).rollback(
-				syncRollbackFn,
-			);
+			await withRollback(Promise.resolve("fn")).rollback(syncRollbackFn);
 
 			// biome-ignore lint/complexity/useLiteralKeys: test code
 			expect(mockContext["rollbackStack"].length).toBe(1);
@@ -56,7 +56,7 @@ describe("withRollback", () => {
 		it("비동기 rollbackFn 등록", async () => {
 			const delay = (ms: number) =>
 				new Promise((resolve) => setTimeout(resolve, ms));
-			const asyncRollbackFn = jest.fn(async () => {
+			const asyncRollbackFn = vitest.fn(async () => {
 				await delay(10);
 			});
 

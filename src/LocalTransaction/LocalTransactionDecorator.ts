@@ -18,7 +18,7 @@ export function LocalTransaction<T extends AnyFn>(
 	return (
 		target: unknown,
 		propertyKey: string | symbol,
-		descriptor: TypedPropertyDescriptor<T>,
+		descriptor: PropertyDescriptor,
 	): void => {
 		const originalMethod = descriptor.value as T;
 

@@ -1,24 +1,24 @@
 {
-	"$schema": "https://json.schemastore.org/tsconfig",
-	"display": "Default",
 	"compilerOptions": {
-		"esModuleInterop": true,
-		"forceConsistentCasingInFileNames": true,
-		"isolatedModules": true,
-		"target": "ESNext",
-		"module": "ESNext",
-		"moduleResolution": "node",
-		"preserveWatchOutput": true,
-		"skipLibCheck": true,
-		"strict": true,
-		"resolveJsonModule": true,
-		"lib": ["ESNext"],
-		"experimentalDecorators": true,
-		"declaration": true,
-		"declarationMap": true,
-		"outDir": "dist",
-		"rootDir": "src"
+		"target": "ESNext", //  ECMAScript 버전
+		"module": "commonjs", // 모듈 시스템 지정
+		"esModuleInterop": true, // CommonJS 모듈을 ES 모듈처럼 가져올 수 있도록 허용
+		"forceConsistentCasingInFileNames": true, // 파일 이름의 대소문자를 일관되게 사용하도록 강제
+		"strict": true, // 모든 엄격한 타입 검사
+		"skipLibCheck": true, // 선언 파일(*.d.ts)의 타입 검사 건너뛰기
+		"outDir": "dist", // 컴파일된 JavaScript 파일이 생성될 디렉토리
+		"declaration": true, // 각 TypeScript 파일에 대해 .d.ts 선언 파일 생성
+		"declarationMap": true, // 각 .d.ts 파일에 대한 소스맵 파일 생성
+		"removeComments": false, // 컴파일 시 주석 제거 여부
+		"noImplicitAny": true, // 명시적이지 않은 'any' 타입 사용 금지
+		"noImplicitReturns": true, // 모든 코드 경로에서 값을 반환하지 않는 함수 금지
+		"noUnusedLocals": true, // 사용되지 않는 지역 변수 금지
+		"baseUrl": "./", // 경로 확인의 기준 디렉토리
+		"paths": {
+			// 모듈 경로 별칭 설정
+			"@/*": ["src/*"]
+		}
 	},
-	"include": ["src/**/*"],
-	"exclude": ["build", "node_modules", "dist", "example"]
+	"include": ["src/**/*.ts", "vitest.config.ts"], // 컴파일에 포함할 파일
+	"exclude": ["node_modules", "dist"]
 }

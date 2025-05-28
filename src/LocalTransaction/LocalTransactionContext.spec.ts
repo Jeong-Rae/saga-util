@@ -1,6 +1,8 @@
 import { LocalTransactionContext } from "./LocalTransactionContext";
 import { RollbackFailedError } from "./RollbackFailedError";
 
+import { describe, expect, it } from "vitest";
+
 describe("LocalTransactionContext", () => {
 	it("RollbackAll: sync function", async () => {
 		const context = new LocalTransactionContext();

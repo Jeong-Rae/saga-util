@@ -3,6 +3,8 @@ import { localTransactionContextStorage } from "./LocalTransactionContextStorage
 import { LocalTransaction } from "./LocalTransactionDecorator";
 import { withRollback } from "./withRollback";
 
+import { beforeEach, describe, expect, it } from "vitest";
+
 class TestService {
 	public rollbackCalls: string[] = [];
 	public parentContext: LocalTransactionContext | null = null;
