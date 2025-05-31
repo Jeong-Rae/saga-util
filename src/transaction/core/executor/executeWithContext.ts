@@ -14,7 +14,12 @@ export async function executeWithContext<T extends AnyFn>(
 	} catch (error) {
 		if (options.catchUnhandledError) {
 			options.verbose && console.error("[transaction] unhandled error", error);
-			await context.rollbackAll();
+			try {
+				await context.rollbackAll();
+			} catch (rollbackError) {
+				// 롤백 실패 시에도 원본 에러를 던짐
+				// 롤백 에러는 무시하고 원본 에러를 우선시
+			}
 		}
 		throw error;
 	}

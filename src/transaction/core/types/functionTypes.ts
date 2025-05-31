@@ -13,9 +13,13 @@ export type AsyncFn<
 export type AnyFn = SyncFn | AsyncFn;
 
 /* 두 함수 모두 Promise 기반으로 승격 */
-export const toPromise =
-	<F extends AnyFn>(func: F) =>
-	async (...parameters: Parameters<F>): Promise<Awaited<ReturnType<F>>> => {
-		const result = await Promise.resolve().then(() => func(...parameters));
+export const toPromise = <F extends AnyFn>(func: F) =>
+	async function (
+		this: unknown,
+		...parameters: Parameters<F>
+	): Promise<Awaited<ReturnType<F>>> {
+		const result = await Promise.resolve().then(() =>
+			func.apply(this, parameters),
+		);
 		return result as Awaited<ReturnType<F>>;
 	};
