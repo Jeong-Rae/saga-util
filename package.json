@@ -1,7 +1,7 @@
 {
 	"name": "@lyght/saga",
-	"version": "1.0.0",
-	"description": "",
+	"version": "0.0.1",
+	"description": "Local transaction management library with rollback support for Node.js applications",
 	"main": "dist/index.js",
 	"module": "dist/index.mjs",
 	"types": "dist/index.d.ts",
@@ -22,11 +22,29 @@
 		"test:ui": "vitest ui",
 		"lint": "pnpm exec biome check",
 		"lint:fix": "pnpm exec biome check --write",
-		"format": "pnpm exec biome format --write"
+		"format": "pnpm exec biome format --write",
+		"prepublishOnly": "pnpm build"
 	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
+	"keywords": [
+		"transaction",
+		"rollback",
+		"local-transaction",
+		"saga",
+		"async",
+		"decorator",
+		"typescript",
+		"nodejs"
+	],
+	"author": "jrjr519",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/jrjr519/saga.git"
+	},
+	"bugs": {
+		"url": "https://github.com/jrjr519/saga/issues"
+	},
+	"homepage": "https://github.com/jrjr519/saga#readme",
 	"type": "module",
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
